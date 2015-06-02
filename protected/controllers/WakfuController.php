@@ -30,7 +30,7 @@ class WakfuController extends TController implements WakfuServiceIf{
 
     public function view($port) {
         $result = exec('sh '.$this->shell.' -p '.$port.' -v');
-        return is_numeric($result) ? $result : -1;
+        return $result;
     }
 
     public function pac($filename, $port) {
