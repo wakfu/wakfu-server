@@ -19,17 +19,18 @@ class WakfuController extends TController implements WakfuServiceIf{
     }
 
     public function create($port) {
-        $result = exec('sh '.$this->shell.' -p '.$port.' -c');
+        $result = exec('sudo sh '.$this->shell.' -p '.$port.' -c');
         return empty($result);
     }
 
     public function remove($port) {
-        $result = exec('sh '.$this->shell.' -p '.$port.' -d');
+        $result = exec('sudo sh '.$this->shell.' -p '.$port.' -d');
         return empty($result);
     }
 
     public function view($port) {
-        $result = exec('sh '.$this->shell.' -p '.$port.' -v');
+        Yii::log('sh '.$this->shell.' -p '.$port.' -v', CLogger::LEVEL_WARNING);
+        $result = exec('sudo sh '.$this->shell.' -p '.$port.' -v');
         return $result;
     }
 
@@ -37,7 +38,7 @@ class WakfuController extends TController implements WakfuServiceIf{
         $path = $this->pac.'/'.$filename.'.pac';
         $proxy = 'SOCKS 123.57.74.156:'.$port.'; SOCKS5 123.57.74.156:'.$port;
         $rules = '';
-        exec('tsocks gfwlist2pac -f '.$path.' -p "'.$proxy.'" --user-rule '.$rules);
+        exec('sudo tsocks gfwlist2pac -f '.$path.' -p "'.$proxy.'" --user-rule '.$rules);
         return Yii::app()->request->getBaseUrl(true).'/pac/'.$filename.'.pac';;
     }
 }
