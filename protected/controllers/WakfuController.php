@@ -30,7 +30,9 @@ class WakfuController extends TController implements WakfuServiceIf{
 
     public function view($port) {
         Yii::log('sh '.$this->shell.' -p '.$port.' -v', CLogger::LEVEL_WARNING);
-        $result = exec('sudo sh '.$this->shell.' -p '.$port.' -v');
+        $result = exec('sudo sh '.$this->shell.' -p '.$port.' -v',$output);
+	Yii::log($result,CLogger::LEVEL_WARNING);
+	Yii::log(join(';',$output),CLogger::LEVEL_WARNING);
         return $result;
     }
 
