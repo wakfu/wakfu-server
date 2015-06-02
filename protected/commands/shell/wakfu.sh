@@ -57,9 +57,18 @@ fi
 
 if [ "$remove" -eq "1" ]; then
     input=$(iptables -t filter -L -n --line-number |grep "dpt:$port" |awk '{print $1}');
-    $(iptables -t filter -D INPUT $input);
+    if [ "$input" -eq "" ]; then
+        echo "$port not found in INPUT";
+    else
+        $(iptables -t filter -D INPUT $input);
+    fi
+
     output=$(iptables -t filter -L -n --line-number |grep "spt:$port" |awk '{print $1}');
-    $(iptables -t filter -D OUTPUT $output);
+    if [ "$input" -eq "" ]; then
+        echo "$port not found in OUTPUT";
+    else
+        $(iptables -t filter -D OUTPUT $output);
+    fi
     exit 0;
 fi
 
