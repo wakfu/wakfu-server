@@ -8,19 +8,36 @@ use \net\toruneko\wakfu\interfaces\WakfuServiceIf;
  */
 class WakfuController extends TController implements WakfuServiceIf{
 
+    private $shell;
+    private $pac;
+
+    public function init(){
+        parent::init();
+
+        $this->shell = Yii::getPathOfAlias('app').'/commands/shell/wakfu.sh';
+        $this->pac = Yii::getPathOfAlias('root').'/pac';
+    }
+
     public function create($port) {
-        // TODO: Implement create() method.
+        $result = exec('sh '.$this->shell.' -p '.$port.' -c');
+        return empty($result);
     }
 
     public function remove($port) {
-        // TODO: Implement remove() method.
+        $result = exec('sh '.$this->shell.' -p '.$port.' -d');
+        return empty($result);
     }
 
     public function view($port) {
-        // TODO: Implement view() method.
+        $result = exec('sh '.$this->shell.' -p '.$port.' -v');
+        return is_numeric($result) ? $result : -1;
     }
 
-    public function pac($port) {
-        // TODO: Implement pac() method.
+    public function pac($filename, $port) {
+        $path = $this->pac.'/'.$filename.'.pac';
+        $proxy = 'SOCKS 123.57.74.156:'.$port.'; SOCKS5 123.57.74.156:'.$port;
+        $rules = '';
+        exec('tsocks gfwlist2pac -f '.$path.' -p "'.$proxy.'" --user-rule '.$rules);
+        return Yii::app()->request->getBaseUrl(true).'/pac/'.$filename.'.pac';;
     }
 }

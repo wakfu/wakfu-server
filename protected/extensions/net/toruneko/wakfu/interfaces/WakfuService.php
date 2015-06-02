@@ -20,7 +20,7 @@ interface WakfuServiceIf {
   public function create($port);
   public function remove($port);
   public function view($port);
-  public function pac($port);
+  public function pac($filename, $port);
 }
 
 class WakfuServiceClient implements \net\toruneko\wakfu\interfaces\WakfuServiceIf {
@@ -187,15 +187,16 @@ class WakfuServiceClient implements \net\toruneko\wakfu\interfaces\WakfuServiceI
     throw new \Exception("view failed: unknown result");
   }
 
-  public function pac($port)
+  public function pac($filename, $port)
   {
-    $this->send_pac($port);
+    $this->send_pac($filename, $port);
     return $this->recv_pac();
   }
 
-  public function send_pac($port)
+  public function send_pac($filename, $port)
   {
     $args = new \net\toruneko\wakfu\interfaces\WakfuService_pac_args();
+    $args->filename = $filename;
     $args->port = $port;
     $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
     if ($bin_accel)
@@ -677,18 +678,26 @@ class WakfuService_view_result {
 class WakfuService_pac_args {
   static $_TSPEC;
 
+  public $filename = null;
   public $port = null;
 
   public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
       self::$_TSPEC = array(
         1 => array(
+          'var' => 'filename',
+          'type' => TType::STRING,
+          ),
+        2 => array(
           'var' => 'port',
           'type' => TType::I32,
           ),
         );
     }
     if (is_array($vals)) {
+      if (isset($vals['filename'])) {
+        $this->filename = $vals['filename'];
+      }
       if (isset($vals['port'])) {
         $this->port = $vals['port'];
       }
@@ -715,6 +724,13 @@ class WakfuService_pac_args {
       switch ($fid)
       {
         case 1:
+          if ($ftype == TType::STRING) {
+            $xfer += $input->readString($this->filename);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 2:
           if ($ftype == TType::I32) {
             $xfer += $input->readI32($this->port);
           } else {
@@ -734,8 +750,13 @@ class WakfuService_pac_args {
   public function write($output) {
     $xfer = 0;
     $xfer += $output->writeStructBegin('WakfuService_pac_args');
+    if ($this->filename !== null) {
+      $xfer += $output->writeFieldBegin('filename', TType::STRING, 1);
+      $xfer += $output->writeString($this->filename);
+      $xfer += $output->writeFieldEnd();
+    }
     if ($this->port !== null) {
-      $xfer += $output->writeFieldBegin('port', TType::I32, 1);
+      $xfer += $output->writeFieldBegin('port', TType::I32, 2);
       $xfer += $output->writeI32($this->port);
       $xfer += $output->writeFieldEnd();
     }
