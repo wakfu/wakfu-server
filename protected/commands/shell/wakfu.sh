@@ -50,8 +50,13 @@ if [ -z "$port" ]; then
 fi
 
 if [ "$create" -eq "1" ]; then
-    $(iptables -I INPUT -d 123.57.74.156 -p tcp --dport $port);
-    $(iptables -I OUTPUT -s 123.57.74.156 -p tcp --sport $port);
+    exists=$(iptables -n -v -L -t filter |grep "$port");
+    if [ "$exists" -eq "" ]; then
+        $(iptables -I INPUT -d 123.57.74.156 -p tcp --dport $port);
+        $(iptables -I OUTPUT -s 123.57.74.156 -p tcp --sport $port);
+    else
+        echo "port:$port already exists";
+    fi
     exit 0;
 fi
 
