@@ -51,35 +51,27 @@ fi
 
 if [ "$create" -eq "1" ]; then
     exists=$(iptables -n -v -L -t filter |grep "$port");
-    if [ "$exists" -eq "" ]; then
+    if [ -z "$exists" ]; then
         $(iptables -I INPUT -d 123.57.74.156 -p tcp --dport $port);
         $(iptables -I OUTPUT -s 123.57.74.156 -p tcp --sport $port);
         $(sh ss-client.sh $port);
-    else
-        echo "port:$port already exists";
     fi
     exit 0;
 fi
 
 if [ "$remove" -eq "1" ]; then
     input=$(iptables -t filter -L -n --line-number |grep "dpt:$port" |awk '{print $1}');
-    if [ "$input" -eq "" ]; then
-        echo "port:$port not found in INPUT";
-    else
+    if [ -n "$input" ]; then
         $(iptables -t filter -D INPUT $input);
     fi
 
     output=$(iptables -t filter -L -n --line-number |grep "spt:$port" |awk '{print $1}');
-    if [ "$input" -eq "" ]; then
-        echo "port:$port not found in OUTPUT";
-    else
+    if [ -n "$input" ]; then
         $(iptables -t filter -D OUTPUT $output);
     fi
 
     pid=$(ps -ax|grep ss-local|grep "$port"|awk '{print $1}');
-    if [ "$pid" -eq "" ]; then
-        echo "client of $port is already killed";
-    else
+    if [ -n "$pid" ]; then
         $(kill $pid);
     fi
     exit 0;
