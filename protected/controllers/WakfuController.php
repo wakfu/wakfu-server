@@ -37,7 +37,7 @@ class WakfuController extends TController implements WakfuServiceIf{
         $path = $this->pac.'/'.$filename.'.pac';
         $proxy = 'SOCKS 123.57.74.156:'.$port.'; SOCKS5 123.57.74.156:'.$port;
         $rules = '';
-        exec('sudo tsocks gfwlist2pac -f '.$path.' -p "'.$proxy.'" --user-rule '.$rules);
+        exec('sudo tsocks gfwlist2pac -f '.$path.' -p "'.$proxy.'"');
         return Yii::app()->request->getBaseUrl(true).'/pac/'.$filename.'.pac';;
     }
 }
