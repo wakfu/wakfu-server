@@ -9,6 +9,7 @@ use \net\toruneko\wakfu\interfaces\WakfuServiceIf;
 class WakfuController extends TController implements WakfuServiceIf{
 
     private $shell;
+    private $client;
     private $pacPath;
     private $pacUrl;
 
@@ -16,6 +17,7 @@ class WakfuController extends TController implements WakfuServiceIf{
         parent::init();
 
         $this->shell = Yii::getPathOfAlias('app').'/commands/shell/wakfu.sh';
+        $this->client = Yii::getPathOfAlias('app').'/commands/shell/ss-client.sh';
         $this->pacPath = Yii::getPathOfAlias('root').'/pac/';
         $this->pacUrl = Yii::app()->request->getBaseUrl(true).'/pac/';
     }
@@ -38,6 +40,28 @@ class WakfuController extends TController implements WakfuServiceIf{
             $this->shell,
             '-p '.$port,
             '-d'
+        );
+        $result = exec(join(' ', $command));
+        return empty($result);
+    }
+
+    public function open($port){
+        $command = array(
+            'sudo sh',
+            $this->client,
+            $port,
+            'start'
+        );
+        $result = exec(join(' ', $command));
+        return empty($result);
+    }
+
+    public function close($port){
+        $command = array(
+            'sudo sh',
+            $this->client,
+            $port,
+            'quit'
         );
         $result = exec(join(' ', $command));
         return empty($result);
