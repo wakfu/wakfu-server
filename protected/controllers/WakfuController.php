@@ -9,35 +9,69 @@ use \net\toruneko\wakfu\interfaces\WakfuServiceIf;
 class WakfuController extends TController implements WakfuServiceIf{
 
     private $shell;
-    private $pac;
+    private $pacPath;
+    private $pacUrl;
 
     public function init(){
         parent::init();
 
         $this->shell = Yii::getPathOfAlias('app').'/commands/shell/wakfu.sh';
-        $this->pac = Yii::getPathOfAlias('root').'/pac';
+        $this->pacPath = Yii::getPathOfAlias('root').'/pac/';
+        $this->pacUrl = Yii::app()->request->getBaseUrl(true).'/pac/';
     }
 
-    public function create($port) {
-        $result = exec('sudo sh '.$this->shell.' -p '.$port.' -c');
+    public function create($ip, $port) {
+        $command = array(
+            'sudo sh',
+            $this->shell,
+            '-s '.$ip,
+            '-p '.$port,
+            '-c'
+        );
+        $result = exec(join(' ', $command));
         return empty($result);
     }
 
     public function remove($port) {
-        $result = exec('sudo sh '.$this->shell.' -p '.$port.' -d');
+        $command = array(
+            'sudo sh',
+            $this->shell,
+            '-p '.$port,
+            '-d'
+        );
+        $result = exec(join(' ', $command));
         return empty($result);
     }
 
     public function view($port) {
-        $result = exec('sudo sh '.$this->shell.' -p '.$port.' -v',$output);
+        $command = array(
+            'sudo sh',
+            $this->shell,
+            '-p '.$port,
+            '-v'
+        );
+        $result = exec(join(' ', $command));
         return is_numeric($result) ? $result : -1;
     }
 
-    public function pac($filename, $port) {
-        $path = $this->pac.'/'.$filename.'.pac';
-        $proxy = 'SOCKS 123.57.74.156:'.$port.'; SOCKS5 123.57.74.156:'.$port;
-        $rules = '';
-        exec('sudo tsocks gfwlist2pac -f '.$path.' -p "'.$proxy.'"');
-        return Yii::app()->request->getBaseUrl(true).'/pac/'.$filename.'.pac';;
+    public function pac($ip, $port, $rules) {
+        $filename = substr(md5($ip.":".$port),8,16).'.pac';
+        $path = $this->pacPath.$filename;
+        $proxy = 'SOCKS '.$ip.':'.$port.'; SOCKS5 '.$ip.':'.$port;
+        $command = array(
+            'sudo tsocks gfwlist2pac',
+            '-f '.$path,
+            '-p "'.$proxy.'"'
+        );
+        if(!empty($rules)){
+            $command[] = '--user-rule '.$this->getUserRulePath($path, $rules);
+        }
+        exec(join(' ', $command));
+        return $this->pacUrl.$filename;
+    }
+
+    private function getUserRulePath($path, $rules){
+        file_put_contents($path.'.rule',$rules);
+        return $path.'.rule';
     }
 }

@@ -1,12 +1,22 @@
 #!/bin/sh
-ip="123.57.74.156";
+
+# remove mode
 remove=0;
+# create mode
 create=1;
+# view mode
 view=0;
 
-while getopts "p:cdvh" opt
+while getopts "s:p:cdvh" opt
 do
     case $opt in
+    s )
+        server=$OPTARG;
+        bool=`echo $server |sed "s/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}//g"`;
+        if [ -n "$bool" ]; then
+            echo "Invalid Service IP ($server)";
+            exit 1;
+        fi;;
     p )
         port=$OPTARG;
         bool=`echo $port |sed "s/[0-9]//g"`;
@@ -27,6 +37,7 @@ do
         view=1;
         remove=0;;
     h )
+        echo "-s <ip>  \t service ip.";
         echo "-p <port>\t service port.";
         echo "-c       \t create service by port. (default)";
         echo "-d       \t delete service by port.";
@@ -35,6 +46,7 @@ do
         exit 0;;
     ? )
         echo "undefined parameter.";
+        echo "-s <ip>  \t service ip.";
         echo "-p <port>\t service port.";
         echo "-c       \t create service by port. (default)";
         echo "-d       \t delete service by port.";
@@ -49,11 +61,16 @@ if [ -z "$port" ]; then
     exit 1;
 fi
 
+
 if [ "$create" -eq "1" ]; then
+    if [ -z "$server" ]; then
+        echo "Invalid service ip (empty)";
+        exit 1;
+    fi
     exists=$(iptables -n -v -L -t filter |grep "$port");
     if [ -z "$exists" ]; then
-        $(iptables -I INPUT -d 123.57.74.156 -p tcp --dport $port);
-        $(iptables -I OUTPUT -s 123.57.74.156 -p tcp --sport $port);
+        $(iptables -I INPUT -d $server -p tcp --dport $port);
+        $(iptables -I OUTPUT -s $server -p tcp --sport $port);
         $(sh ss-client.sh $port);
     fi
     exit 0;
@@ -80,7 +97,7 @@ fi
 if [ "$view" -eq "1" ]; then
     input=$(iptables -n -v -x -L -t filter |grep "dpt:$port" |awk '{print $2}');
     output=$(iptables -n -v -x -L -t filter |grep "spt:$port" |awk '{print $2}');
-    total=$(expr $input / 1024 + $output / 1024);
+    total=$(expr $input / 1000 + $output / 1000);
     echo $total;
     exit 0;
 fi
