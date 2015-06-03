@@ -17,10 +17,10 @@ use Thrift\Exception\TApplicationException;
 
 
 interface WakfuServiceIf {
-  public function create($port);
+  public function create($ip, $port);
   public function remove($port);
   public function view($port);
-  public function pac($filename, $port);
+  public function pac($ip, $port, $rules);
 }
 
 class WakfuServiceClient implements \net\toruneko\wakfu\interfaces\WakfuServiceIf {
@@ -34,15 +34,16 @@ class WakfuServiceClient implements \net\toruneko\wakfu\interfaces\WakfuServiceI
     $this->output_ = $output ? $output : $input;
   }
 
-  public function create($port)
+  public function create($ip, $port)
   {
-    $this->send_create($port);
+    $this->send_create($ip, $port);
     return $this->recv_create();
   }
 
-  public function send_create($port)
+  public function send_create($ip, $port)
   {
     $args = new \net\toruneko\wakfu\interfaces\WakfuService_create_args();
+    $args->ip = $ip;
     $args->port = $port;
     $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
     if ($bin_accel)
@@ -187,17 +188,18 @@ class WakfuServiceClient implements \net\toruneko\wakfu\interfaces\WakfuServiceI
     throw new \Exception("view failed: unknown result");
   }
 
-  public function pac($filename, $port)
+  public function pac($ip, $port, $rules)
   {
-    $this->send_pac($filename, $port);
+    $this->send_pac($ip, $port, $rules);
     return $this->recv_pac();
   }
 
-  public function send_pac($filename, $port)
+  public function send_pac($ip, $port, $rules)
   {
     $args = new \net\toruneko\wakfu\interfaces\WakfuService_pac_args();
-    $args->filename = $filename;
+    $args->ip = $ip;
     $args->port = $port;
+    $args->rules = $rules;
     $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
     if ($bin_accel)
     {
@@ -246,18 +248,26 @@ class WakfuServiceClient implements \net\toruneko\wakfu\interfaces\WakfuServiceI
 class WakfuService_create_args {
   static $_TSPEC;
 
+  public $ip = null;
   public $port = null;
 
   public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
       self::$_TSPEC = array(
         1 => array(
+          'var' => 'ip',
+          'type' => TType::STRING,
+          ),
+        2 => array(
           'var' => 'port',
           'type' => TType::I32,
           ),
         );
     }
     if (is_array($vals)) {
+      if (isset($vals['ip'])) {
+        $this->ip = $vals['ip'];
+      }
       if (isset($vals['port'])) {
         $this->port = $vals['port'];
       }
@@ -284,6 +294,13 @@ class WakfuService_create_args {
       switch ($fid)
       {
         case 1:
+          if ($ftype == TType::STRING) {
+            $xfer += $input->readString($this->ip);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 2:
           if ($ftype == TType::I32) {
             $xfer += $input->readI32($this->port);
           } else {
@@ -303,8 +320,13 @@ class WakfuService_create_args {
   public function write($output) {
     $xfer = 0;
     $xfer += $output->writeStructBegin('WakfuService_create_args');
+    if ($this->ip !== null) {
+      $xfer += $output->writeFieldBegin('ip', TType::STRING, 1);
+      $xfer += $output->writeString($this->ip);
+      $xfer += $output->writeFieldEnd();
+    }
     if ($this->port !== null) {
-      $xfer += $output->writeFieldBegin('port', TType::I32, 1);
+      $xfer += $output->writeFieldBegin('port', TType::I32, 2);
       $xfer += $output->writeI32($this->port);
       $xfer += $output->writeFieldEnd();
     }
@@ -678,28 +700,36 @@ class WakfuService_view_result {
 class WakfuService_pac_args {
   static $_TSPEC;
 
-  public $filename = null;
+  public $ip = null;
   public $port = null;
+  public $rules = null;
 
   public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
       self::$_TSPEC = array(
         1 => array(
-          'var' => 'filename',
+          'var' => 'ip',
           'type' => TType::STRING,
           ),
         2 => array(
           'var' => 'port',
           'type' => TType::I32,
           ),
+        3 => array(
+          'var' => 'rules',
+          'type' => TType::STRING,
+          ),
         );
     }
     if (is_array($vals)) {
-      if (isset($vals['filename'])) {
-        $this->filename = $vals['filename'];
+      if (isset($vals['ip'])) {
+        $this->ip = $vals['ip'];
       }
       if (isset($vals['port'])) {
         $this->port = $vals['port'];
+      }
+      if (isset($vals['rules'])) {
+        $this->rules = $vals['rules'];
       }
     }
   }
@@ -725,7 +755,7 @@ class WakfuService_pac_args {
       {
         case 1:
           if ($ftype == TType::STRING) {
-            $xfer += $input->readString($this->filename);
+            $xfer += $input->readString($this->ip);
           } else {
             $xfer += $input->skip($ftype);
           }
@@ -733,6 +763,13 @@ class WakfuService_pac_args {
         case 2:
           if ($ftype == TType::I32) {
             $xfer += $input->readI32($this->port);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 3:
+          if ($ftype == TType::STRING) {
+            $xfer += $input->readString($this->rules);
           } else {
             $xfer += $input->skip($ftype);
           }
@@ -750,14 +787,19 @@ class WakfuService_pac_args {
   public function write($output) {
     $xfer = 0;
     $xfer += $output->writeStructBegin('WakfuService_pac_args');
-    if ($this->filename !== null) {
-      $xfer += $output->writeFieldBegin('filename', TType::STRING, 1);
-      $xfer += $output->writeString($this->filename);
+    if ($this->ip !== null) {
+      $xfer += $output->writeFieldBegin('ip', TType::STRING, 1);
+      $xfer += $output->writeString($this->ip);
       $xfer += $output->writeFieldEnd();
     }
     if ($this->port !== null) {
       $xfer += $output->writeFieldBegin('port', TType::I32, 2);
       $xfer += $output->writeI32($this->port);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->rules !== null) {
+      $xfer += $output->writeFieldBegin('rules', TType::STRING, 3);
+      $xfer += $output->writeString($this->rules);
       $xfer += $output->writeFieldEnd();
     }
     $xfer += $output->writeFieldStop();
