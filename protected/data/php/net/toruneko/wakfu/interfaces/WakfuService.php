@@ -17,11 +17,11 @@ use Thrift\Exception\TApplicationException;
 
 
 interface WakfuServiceIf {
-  public function open($port);
-  public function close($port);
+  public function open($ip, $port);
+  public function close($ip, $port);
   public function create($ip, $port);
-  public function remove($port);
-  public function view($port);
+  public function remove($ip, $port);
+  public function view($ip, $port);
   public function pac($ip, $port, $rules);
 }
 
@@ -36,15 +36,16 @@ class WakfuServiceClient implements \net\toruneko\wakfu\interfaces\WakfuServiceI
     $this->output_ = $output ? $output : $input;
   }
 
-  public function open($port)
+  public function open($ip, $port)
   {
-    $this->send_open($port);
+    $this->send_open($ip, $port);
     return $this->recv_open();
   }
 
-  public function send_open($port)
+  public function send_open($ip, $port)
   {
     $args = new \net\toruneko\wakfu\interfaces\WakfuService_open_args();
+    $args->ip = $ip;
     $args->port = $port;
     $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
     if ($bin_accel)
@@ -87,15 +88,16 @@ class WakfuServiceClient implements \net\toruneko\wakfu\interfaces\WakfuServiceI
     throw new \Exception("open failed: unknown result");
   }
 
-  public function close($port)
+  public function close($ip, $port)
   {
-    $this->send_close($port);
+    $this->send_close($ip, $port);
     return $this->recv_close();
   }
 
-  public function send_close($port)
+  public function send_close($ip, $port)
   {
     $args = new \net\toruneko\wakfu\interfaces\WakfuService_close_args();
+    $args->ip = $ip;
     $args->port = $port;
     $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
     if ($bin_accel)
@@ -190,15 +192,16 @@ class WakfuServiceClient implements \net\toruneko\wakfu\interfaces\WakfuServiceI
     throw new \Exception("create failed: unknown result");
   }
 
-  public function remove($port)
+  public function remove($ip, $port)
   {
-    $this->send_remove($port);
+    $this->send_remove($ip, $port);
     return $this->recv_remove();
   }
 
-  public function send_remove($port)
+  public function send_remove($ip, $port)
   {
     $args = new \net\toruneko\wakfu\interfaces\WakfuService_remove_args();
+    $args->ip = $ip;
     $args->port = $port;
     $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
     if ($bin_accel)
@@ -241,15 +244,16 @@ class WakfuServiceClient implements \net\toruneko\wakfu\interfaces\WakfuServiceI
     throw new \Exception("remove failed: unknown result");
   }
 
-  public function view($port)
+  public function view($ip, $port)
   {
-    $this->send_view($port);
+    $this->send_view($ip, $port);
     return $this->recv_view();
   }
 
-  public function send_view($port)
+  public function send_view($ip, $port)
   {
     $args = new \net\toruneko\wakfu\interfaces\WakfuService_view_args();
+    $args->ip = $ip;
     $args->port = $port;
     $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
     if ($bin_accel)
@@ -352,18 +356,26 @@ class WakfuServiceClient implements \net\toruneko\wakfu\interfaces\WakfuServiceI
 class WakfuService_open_args {
   static $_TSPEC;
 
+  public $ip = null;
   public $port = null;
 
   public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
       self::$_TSPEC = array(
         1 => array(
+          'var' => 'ip',
+          'type' => TType::STRING,
+          ),
+        2 => array(
           'var' => 'port',
           'type' => TType::I32,
           ),
         );
     }
     if (is_array($vals)) {
+      if (isset($vals['ip'])) {
+        $this->ip = $vals['ip'];
+      }
       if (isset($vals['port'])) {
         $this->port = $vals['port'];
       }
@@ -390,6 +402,13 @@ class WakfuService_open_args {
       switch ($fid)
       {
         case 1:
+          if ($ftype == TType::STRING) {
+            $xfer += $input->readString($this->ip);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 2:
           if ($ftype == TType::I32) {
             $xfer += $input->readI32($this->port);
           } else {
@@ -409,8 +428,13 @@ class WakfuService_open_args {
   public function write($output) {
     $xfer = 0;
     $xfer += $output->writeStructBegin('WakfuService_open_args');
+    if ($this->ip !== null) {
+      $xfer += $output->writeFieldBegin('ip', TType::STRING, 1);
+      $xfer += $output->writeString($this->ip);
+      $xfer += $output->writeFieldEnd();
+    }
     if ($this->port !== null) {
-      $xfer += $output->writeFieldBegin('port', TType::I32, 1);
+      $xfer += $output->writeFieldBegin('port', TType::I32, 2);
       $xfer += $output->writeI32($this->port);
       $xfer += $output->writeFieldEnd();
     }
@@ -496,18 +520,26 @@ class WakfuService_open_result {
 class WakfuService_close_args {
   static $_TSPEC;
 
+  public $ip = null;
   public $port = null;
 
   public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
       self::$_TSPEC = array(
         1 => array(
+          'var' => 'ip',
+          'type' => TType::STRING,
+          ),
+        2 => array(
           'var' => 'port',
           'type' => TType::I32,
           ),
         );
     }
     if (is_array($vals)) {
+      if (isset($vals['ip'])) {
+        $this->ip = $vals['ip'];
+      }
       if (isset($vals['port'])) {
         $this->port = $vals['port'];
       }
@@ -534,6 +566,13 @@ class WakfuService_close_args {
       switch ($fid)
       {
         case 1:
+          if ($ftype == TType::STRING) {
+            $xfer += $input->readString($this->ip);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 2:
           if ($ftype == TType::I32) {
             $xfer += $input->readI32($this->port);
           } else {
@@ -553,8 +592,13 @@ class WakfuService_close_args {
   public function write($output) {
     $xfer = 0;
     $xfer += $output->writeStructBegin('WakfuService_close_args');
+    if ($this->ip !== null) {
+      $xfer += $output->writeFieldBegin('ip', TType::STRING, 1);
+      $xfer += $output->writeString($this->ip);
+      $xfer += $output->writeFieldEnd();
+    }
     if ($this->port !== null) {
-      $xfer += $output->writeFieldBegin('port', TType::I32, 1);
+      $xfer += $output->writeFieldBegin('port', TType::I32, 2);
       $xfer += $output->writeI32($this->port);
       $xfer += $output->writeFieldEnd();
     }
@@ -804,18 +848,26 @@ class WakfuService_create_result {
 class WakfuService_remove_args {
   static $_TSPEC;
 
+  public $ip = null;
   public $port = null;
 
   public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
       self::$_TSPEC = array(
         1 => array(
+          'var' => 'ip',
+          'type' => TType::STRING,
+          ),
+        2 => array(
           'var' => 'port',
           'type' => TType::I32,
           ),
         );
     }
     if (is_array($vals)) {
+      if (isset($vals['ip'])) {
+        $this->ip = $vals['ip'];
+      }
       if (isset($vals['port'])) {
         $this->port = $vals['port'];
       }
@@ -842,6 +894,13 @@ class WakfuService_remove_args {
       switch ($fid)
       {
         case 1:
+          if ($ftype == TType::STRING) {
+            $xfer += $input->readString($this->ip);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 2:
           if ($ftype == TType::I32) {
             $xfer += $input->readI32($this->port);
           } else {
@@ -861,8 +920,13 @@ class WakfuService_remove_args {
   public function write($output) {
     $xfer = 0;
     $xfer += $output->writeStructBegin('WakfuService_remove_args');
+    if ($this->ip !== null) {
+      $xfer += $output->writeFieldBegin('ip', TType::STRING, 1);
+      $xfer += $output->writeString($this->ip);
+      $xfer += $output->writeFieldEnd();
+    }
     if ($this->port !== null) {
-      $xfer += $output->writeFieldBegin('port', TType::I32, 1);
+      $xfer += $output->writeFieldBegin('port', TType::I32, 2);
       $xfer += $output->writeI32($this->port);
       $xfer += $output->writeFieldEnd();
     }
@@ -948,18 +1012,26 @@ class WakfuService_remove_result {
 class WakfuService_view_args {
   static $_TSPEC;
 
+  public $ip = null;
   public $port = null;
 
   public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
       self::$_TSPEC = array(
         1 => array(
+          'var' => 'ip',
+          'type' => TType::STRING,
+          ),
+        2 => array(
           'var' => 'port',
           'type' => TType::I32,
           ),
         );
     }
     if (is_array($vals)) {
+      if (isset($vals['ip'])) {
+        $this->ip = $vals['ip'];
+      }
       if (isset($vals['port'])) {
         $this->port = $vals['port'];
       }
@@ -986,6 +1058,13 @@ class WakfuService_view_args {
       switch ($fid)
       {
         case 1:
+          if ($ftype == TType::STRING) {
+            $xfer += $input->readString($this->ip);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 2:
           if ($ftype == TType::I32) {
             $xfer += $input->readI32($this->port);
           } else {
@@ -1005,8 +1084,13 @@ class WakfuService_view_args {
   public function write($output) {
     $xfer = 0;
     $xfer += $output->writeStructBegin('WakfuService_view_args');
+    if ($this->ip !== null) {
+      $xfer += $output->writeFieldBegin('ip', TType::STRING, 1);
+      $xfer += $output->writeString($this->ip);
+      $xfer += $output->writeFieldEnd();
+    }
     if ($this->port !== null) {
-      $xfer += $output->writeFieldBegin('port', TType::I32, 1);
+      $xfer += $output->writeFieldBegin('port', TType::I32, 2);
       $xfer += $output->writeI32($this->port);
       $xfer += $output->writeFieldEnd();
     }

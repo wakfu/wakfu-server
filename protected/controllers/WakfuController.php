@@ -34,7 +34,7 @@ class WakfuController extends TController implements WakfuServiceIf{
         return empty($result);
     }
 
-    public function remove($port) {
+    public function remove($ip, $port) {
         $command = array(
             'sudo sh',
             $this->shell,
@@ -45,7 +45,7 @@ class WakfuController extends TController implements WakfuServiceIf{
         return empty($result);
     }
 
-    public function open($port){
+    public function open($ip, $port){
         $command = array(
             'sudo sh',
             $this->client,
@@ -56,7 +56,7 @@ class WakfuController extends TController implements WakfuServiceIf{
         return empty($result);
     }
 
-    public function close($port){
+    public function close($ip, $port){
         $command = array(
             'sudo sh',
             $this->client,
@@ -67,7 +67,7 @@ class WakfuController extends TController implements WakfuServiceIf{
         return empty($result);
     }
 
-    public function view($port) {
+    public function view($ip, $port) {
         $command = array(
             'sudo sh',
             $this->shell,
