@@ -11,7 +11,6 @@ class WakfuController extends TController implements WakfuServiceIf{
     private $shell;
     private $client;
     private $pacPath;
-    private $pacUrl;
 
     public function init(){
         parent::init();
@@ -19,7 +18,6 @@ class WakfuController extends TController implements WakfuServiceIf{
         $this->shell = Yii::getPathOfAlias('app').'/commands/shell/wakfu.sh';
         $this->client = Yii::getPathOfAlias('app').'/commands/shell/ss-client.sh';
         $this->pacPath = Yii::getPathOfAlias('root').'/pac/';
-        $this->pacUrl = Yii::app()->request->getBaseUrl(true).'/pac/';
     }
 
     public function create($ip, $port) {
@@ -91,7 +89,7 @@ class WakfuController extends TController implements WakfuServiceIf{
             $command[] = '--user-rule '.$this->getUserRulePath($path, $rules);
         }
         exec(join(' ', $command));
-        return $this->pacUrl.$filename;
+        return file_get_contents($path);
     }
 
     private function getUserRulePath($path, $rules){
