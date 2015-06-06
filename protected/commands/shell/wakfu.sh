@@ -12,7 +12,7 @@ do
     case $opt in
     s )
         server=$OPTARG;
-        bool=`echo $server |sed "s/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}//g"`;
+        bool=`echo $server |sed "s/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}//g"`;
         if [ -n "$bool" ]; then
             echo "Invalid Service IP ($server)";
             exit 1;
