@@ -1,6 +1,7 @@
 #!/bin/sh
-port=$1;
-mode=$2;
+
+$port=$1;
+$mode=$2;
 
 if [ "$mode" = "start" ]; then
     ss-local -s 23.252.107.210 -p 443 \

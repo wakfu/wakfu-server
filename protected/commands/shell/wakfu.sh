@@ -71,7 +71,6 @@ if [ "$create" -eq "1" ]; then
     if [ -z "$exists" ]; then
         $(iptables -I INPUT -d $server -p tcp --dport $port);
         $(iptables -I OUTPUT -s $server -p tcp --sport $port);
-        $(sh ss-client.sh $port start);
     fi
     exit 0;
 fi
@@ -86,7 +85,10 @@ if [ "$remove" -eq "1" ]; then
     if [ -n "$input" ]; then
         $(iptables -t filter -D OUTPUT $output);
     fi
-    $(sh ss-client.sh $port quit);
+    pid=$(ps -ax|grep ss-local|grep "$port"|awk '{print $1}');
+    if [ -n "$pid" ]; then
+        kill $pid;
+    fi
     exit 0;
 fi
 
