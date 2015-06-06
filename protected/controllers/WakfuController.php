@@ -17,7 +17,7 @@ class WakfuController extends TController implements WakfuServiceIf{
 
         $this->shell = Yii::getPathOfAlias('app').'/commands/shell/wakfu.sh';
         $this->client = Yii::getPathOfAlias('app').'/commands/shell/ss-client.sh';
-        $this->pacPath = Yii::getPathOfAlias('root').'/pac/';
+        $this->pacPath = Yii::getPathOfAlias('app').'/data/pac/';
     }
 
     public function create($ip, $port) {
