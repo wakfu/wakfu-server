@@ -73,7 +73,7 @@ class WakfuController extends TController implements WakfuServiceIf{
             '-v'
         );
         $result = exec(join(' ', $command));
-        return is_numeric($result) ? $result : -1;
+        return $result;
     }
 
     public function pac($ip, $port, $rules) {
