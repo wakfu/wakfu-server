@@ -44,11 +44,13 @@ class WakfuController extends TController implements WakfuServiceIf{
     }
 
     public function open($ip, $port){
+        $server = array('23.252.107.210','138.128.210.30');
         $command = array(
             'sudo sh',
             $this->client,
-            $port,
-            'start'
+            '-s '.$server[mt_rand(0,1)],
+            '-p '.$port,
+            '-m start'
         );
         $result = exec(join(' ', $command));
         return empty($result);
@@ -58,8 +60,8 @@ class WakfuController extends TController implements WakfuServiceIf{
         $command = array(
             'sudo sh',
             $this->client,
-            $port,
-            'quit'
+            '-p '.$port,
+            '-m quit'
         );
         $result = exec(join(' ', $command));
         return empty($result);
