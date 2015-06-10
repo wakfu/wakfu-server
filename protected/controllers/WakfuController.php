@@ -81,7 +81,7 @@ class WakfuController extends TController implements WakfuServiceIf{
     public function pac($ip, $port, $rules) {
         $filename = substr(md5($ip.":".$port),8,16).'.pac';
         $path = $this->pacPath.$filename;
-        $proxy = 'SOCKS5 '.$ip.':'.$port;
+        $proxy = 'SOCKS5 '.$ip.':'.$port.'; SOCKS '.$ip.':'.$port;
         $command = array(
             'sudo tsocks gfwlist2pac',
             '-f '.$path,
