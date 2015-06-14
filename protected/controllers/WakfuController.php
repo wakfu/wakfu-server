@@ -15,9 +15,10 @@ class WakfuController extends TController implements WakfuServiceIf{
     public function init(){
         parent::init();
 
-        $this->shell = Yii::getPathOfAlias('app').'/commands/shell/wakfu.sh';
-        $this->client = Yii::getPathOfAlias('app').'/commands/shell/ss-client.sh';
-        $this->pacPath = Yii::getPathOfAlias('app').'/data/pac/';
+        $app = Yii::getPathOfAlias('app');
+        $this->shell = $app.'/commands/shell/wakfu.sh';
+        $this->client = $app.'/commands/shell/ss-client.sh';
+        $this->pacPath = $app.'/data/pac/';
     }
 
     public function create($ip, $port) {
@@ -84,6 +85,7 @@ class WakfuController extends TController implements WakfuServiceIf{
         $proxy = 'SOCKS5 '.$ip.':'.$port.'; SOCKS '.$ip.':'.$port;
         $command = array(
             'sudo tsocks gfwlist2pac',
+            '-i '.$this->pacPath.'gfwlist.txt',
             '-f '.$path,
             '-p "'.$proxy.'"'
         );
