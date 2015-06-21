@@ -45,11 +45,13 @@ class WakfuController extends TController implements WakfuServiceIf{
     }
 
     public function open($ip, $port){
-        $server = array('23.252.107.210','138.128.210.30');
+        $server = Yii::app()->params['serverList'];
+        $min = 0;
+        $max = count($server) - 1;
         $command = array(
             'sudo sh',
             $this->client,
-            '-s '.$server[mt_rand(0,1)],
+            '-s '.$server[mt_rand($min, $max)],
             '-p '.$port,
             '-m start'
         );

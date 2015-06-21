@@ -77,5 +77,9 @@ return array(
 	'params'=>array(
 		// this is used in contact page
 		//'adminEmail'=>'webmaster@example.com',
+        'serverList' => array(
+            '23.252.107.210',
+            '138.128.210.30'
+        ),
 	),
 );
