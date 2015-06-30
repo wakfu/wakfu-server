@@ -49,6 +49,12 @@ interface WakfuServiceIf {
   public function view($ip, $port);
   /**
    * @param string $ip
+   * @param int[] $port
+   * @return array
+   */
+  public function multiView($ip, array $port);
+  /**
+   * @param string $ip
    * @param int $port
    * @param string $rules
    * @return string
@@ -325,6 +331,58 @@ class WakfuServiceClient implements \net\toruneko\wakfu\interfaces\WakfuServiceI
       return $result->success;
     }
     throw new \Exception("view failed: unknown result");
+  }
+
+  public function multiView($ip, array $port)
+  {
+    $this->send_multiView($ip, $port);
+    return $this->recv_multiView();
+  }
+
+  public function send_multiView($ip, array $port)
+  {
+    $args = new \net\toruneko\wakfu\interfaces\WakfuService_multiView_args();
+    $args->ip = $ip;
+    $args->port = $port;
+    $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
+    if ($bin_accel)
+    {
+      thrift_protocol_write_binary($this->output_, 'multiView', TMessageType::CALL, $args, $this->seqid_, $this->output_->isStrictWrite());
+    }
+    else
+    {
+      $this->output_->writeMessageBegin('multiView', TMessageType::CALL, $this->seqid_);
+      $args->write($this->output_);
+      $this->output_->writeMessageEnd();
+      $this->output_->getTransport()->flush();
+    }
+  }
+
+  public function recv_multiView()
+  {
+    $bin_accel = ($this->input_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_read_binary');
+    if ($bin_accel) $result = thrift_protocol_read_binary($this->input_, '\net\toruneko\wakfu\interfaces\WakfuService_multiView_result', $this->input_->isStrictRead());
+    else
+    {
+      $rseqid = 0;
+      $fname = null;
+      $mtype = 0;
+
+      $this->input_->readMessageBegin($fname, $mtype, $rseqid);
+      if ($mtype == TMessageType::EXCEPTION) {
+        $x = new TApplicationException();
+        $x->read($this->input_);
+        $this->input_->readMessageEnd();
+        throw $x;
+      }
+      $result = new \net\toruneko\wakfu\interfaces\WakfuService_multiView_result();
+      $result->read($this->input_);
+      $this->input_->readMessageEnd();
+    }
+    if ($result->success !== null) {
+      return $result->success;
+    }
+    throw new \Exception("multiView failed: unknown result");
   }
 
   public function pac($ip, $port, $rules)
@@ -1240,6 +1298,239 @@ class WakfuService_view_result {
     if ($this->success !== null) {
       $xfer += $output->writeFieldBegin('success', TType::I64, 0);
       $xfer += $output->writeI64($this->success);
+      $xfer += $output->writeFieldEnd();
+    }
+    $xfer += $output->writeFieldStop();
+    $xfer += $output->writeStructEnd();
+    return $xfer;
+  }
+
+}
+
+class WakfuService_multiView_args {
+  static $_TSPEC;
+
+  /**
+   * @var string
+   */
+  public $ip = null;
+  /**
+   * @var int[]
+   */
+  public $port = null;
+
+  public function __construct($vals=null) {
+    if (!isset(self::$_TSPEC)) {
+      self::$_TSPEC = array(
+        1 => array(
+          'var' => 'ip',
+          'type' => TType::STRING,
+          ),
+        2 => array(
+          'var' => 'port',
+          'type' => TType::LST,
+          'etype' => TType::I32,
+          'elem' => array(
+            'type' => TType::I32,
+            ),
+          ),
+        );
+    }
+    if (is_array($vals)) {
+      if (isset($vals['ip'])) {
+        $this->ip = $vals['ip'];
+      }
+      if (isset($vals['port'])) {
+        $this->port = $vals['port'];
+      }
+    }
+  }
+
+  public function getName() {
+    return 'WakfuService_multiView_args';
+  }
+
+  public function read($input)
+  {
+    $xfer = 0;
+    $fname = null;
+    $ftype = 0;
+    $fid = 0;
+    $xfer += $input->readStructBegin($fname);
+    while (true)
+    {
+      $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+      if ($ftype == TType::STOP) {
+        break;
+      }
+      switch ($fid)
+      {
+        case 1:
+          if ($ftype == TType::STRING) {
+            $xfer += $input->readString($this->ip);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 2:
+          if ($ftype == TType::LST) {
+            $this->port = array();
+            $_size0 = 0;
+            $_etype3 = 0;
+            $xfer += $input->readListBegin($_etype3, $_size0);
+            for ($_i4 = 0; $_i4 < $_size0; ++$_i4)
+            {
+              $elem5 = null;
+              $xfer += $input->readI32($elem5);
+              $this->port []= $elem5;
+            }
+            $xfer += $input->readListEnd();
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        default:
+          $xfer += $input->skip($ftype);
+          break;
+      }
+      $xfer += $input->readFieldEnd();
+    }
+    $xfer += $input->readStructEnd();
+    return $xfer;
+  }
+
+  public function write($output) {
+    $xfer = 0;
+    $xfer += $output->writeStructBegin('WakfuService_multiView_args');
+    if ($this->ip !== null) {
+      $xfer += $output->writeFieldBegin('ip', TType::STRING, 1);
+      $xfer += $output->writeString($this->ip);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->port !== null) {
+      if (!is_array($this->port)) {
+        throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
+      }
+      $xfer += $output->writeFieldBegin('port', TType::LST, 2);
+      {
+        $output->writeListBegin(TType::I32, count($this->port));
+        {
+          foreach ($this->port as $iter6)
+          {
+            $xfer += $output->writeI32($iter6);
+          }
+        }
+        $output->writeListEnd();
+      }
+      $xfer += $output->writeFieldEnd();
+    }
+    $xfer += $output->writeFieldStop();
+    $xfer += $output->writeStructEnd();
+    return $xfer;
+  }
+
+}
+
+class WakfuService_multiView_result {
+  static $_TSPEC;
+
+  /**
+   * @var array
+   */
+  public $success = null;
+
+  public function __construct($vals=null) {
+    if (!isset(self::$_TSPEC)) {
+      self::$_TSPEC = array(
+        0 => array(
+          'var' => 'success',
+          'type' => TType::MAP,
+          'ktype' => TType::I32,
+          'vtype' => TType::I64,
+          'key' => array(
+            'type' => TType::I32,
+          ),
+          'val' => array(
+            'type' => TType::I64,
+            ),
+          ),
+        );
+    }
+    if (is_array($vals)) {
+      if (isset($vals['success'])) {
+        $this->success = $vals['success'];
+      }
+    }
+  }
+
+  public function getName() {
+    return 'WakfuService_multiView_result';
+  }
+
+  public function read($input)
+  {
+    $xfer = 0;
+    $fname = null;
+    $ftype = 0;
+    $fid = 0;
+    $xfer += $input->readStructBegin($fname);
+    while (true)
+    {
+      $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+      if ($ftype == TType::STOP) {
+        break;
+      }
+      switch ($fid)
+      {
+        case 0:
+          if ($ftype == TType::MAP) {
+            $this->success = array();
+            $_size7 = 0;
+            $_ktype8 = 0;
+            $_vtype9 = 0;
+            $xfer += $input->readMapBegin($_ktype8, $_vtype9, $_size7);
+            for ($_i11 = 0; $_i11 < $_size7; ++$_i11)
+            {
+              $key12 = 0;
+              $val13 = 0;
+              $xfer += $input->readI32($key12);
+              $xfer += $input->readI64($val13);
+              $this->success[$key12] = $val13;
+            }
+            $xfer += $input->readMapEnd();
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        default:
+          $xfer += $input->skip($ftype);
+          break;
+      }
+      $xfer += $input->readFieldEnd();
+    }
+    $xfer += $input->readStructEnd();
+    return $xfer;
+  }
+
+  public function write($output) {
+    $xfer = 0;
+    $xfer += $output->writeStructBegin('WakfuService_multiView_result');
+    if ($this->success !== null) {
+      if (!is_array($this->success)) {
+        throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
+      }
+      $xfer += $output->writeFieldBegin('success', TType::MAP, 0);
+      {
+        $output->writeMapBegin(TType::I32, TType::I64, count($this->success));
+        {
+          foreach ($this->success as $kiter14 => $viter15)
+          {
+            $xfer += $output->writeI32($kiter14);
+            $xfer += $output->writeI64($viter15);
+          }
+        }
+        $output->writeMapEnd();
+      }
       $xfer += $output->writeFieldEnd();
     }
     $xfer += $output->writeFieldStop();

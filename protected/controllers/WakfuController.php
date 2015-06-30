@@ -81,6 +81,15 @@ class WakfuController extends TController implements WakfuServiceIf{
         return $result;
     }
 
+    public function multiView($ip, array $ports){
+        $result = array();
+        foreach($ports as $port){
+            $result[$port] = $this->view($ip, $port);
+        }
+
+        return $result;
+    }
+
     public function pac($ip, $port, $rules) {
         $filename = substr(md5($ip.":".$port),8,16).'.pac';
         $path = $this->pacPath.$filename;
