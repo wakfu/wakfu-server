@@ -5,6 +5,9 @@
  * Date: 15/7/31 00:17
  * Description: 
  */
-class IndexController extends TController{
+class IndexController extends RedController{
 
+    public function actionIndex(){
+        echo "ok";
+    }
 }
