@@ -29,7 +29,9 @@ class WakfuController extends TController implements WakfuServiceIf{
             '-p '.$port,
             '-c'
         );
-        $result = exec(join(' ', $command));
+        $command = join(' ', $command);
+        Yii::log($command, CLogger::LEVEL_INFO);
+        $result = exec($command);
         return empty($result);
     }
 
@@ -40,7 +42,9 @@ class WakfuController extends TController implements WakfuServiceIf{
             '-p '.$port,
             '-d'
         );
-        $result = exec(join(' ', $command));
+        $command = join(' ', $command);
+        Yii::log($command, CLogger::LEVEL_INFO);
+        $result = exec($command);
         return empty($result);
     }
 
@@ -55,7 +59,9 @@ class WakfuController extends TController implements WakfuServiceIf{
             '-p '.$port,
             '-m start'
         );
-        $result = exec(join(' ', $command));
+        $command = join(' ', $command);
+        Yii::log($command, CLogger::LEVEL_INFO);
+        $result = exec($command);
         return empty($result);
     }
 
@@ -66,7 +72,9 @@ class WakfuController extends TController implements WakfuServiceIf{
             '-p '.$port,
             '-m quit'
         );
-        $result = exec(join(' ', $command));
+        $command = join(' ', $command);
+        Yii::log($command, CLogger::LEVEL_INFO);
+        $result = exec($command);
         return empty($result);
     }
 
@@ -77,7 +85,9 @@ class WakfuController extends TController implements WakfuServiceIf{
             '-p '.$port,
             '-v'
         );
-        $result = exec(join(' ', $command));
+        $command = join(' ', $command);
+        Yii::log($command, CLogger::LEVEL_INFO);
+        $result = exec($command);
         return $result;
     }
 
@@ -103,7 +113,9 @@ class WakfuController extends TController implements WakfuServiceIf{
         if(!empty($rules)){
             $command[] = '--user-rule '.$this->getUserRulePath($path, $rules);
         }
-        exec(join(' ', $command));
+        $command = join(' ', $command);
+        Yii::log($command, CLogger::LEVEL_INFO);
+        exec($command);
         $str = file_get_contents($path);
         //压缩
         $str = str_replace(array(
