@@ -30,7 +30,7 @@ class WakfuController extends TController implements WakfuServiceIf{
             '-c'
         );
         $command = join(' ', $command);
-        Yii::log($command, CLogger::LEVEL_INFO);
+        Yii::log($command, CLogger::LEVEL_WARNING);
         $result = exec($command);
         return empty($result);
     }
@@ -43,7 +43,7 @@ class WakfuController extends TController implements WakfuServiceIf{
             '-d'
         );
         $command = join(' ', $command);
-        Yii::log($command, CLogger::LEVEL_INFO);
+        Yii::log($command, CLogger::LEVEL_WARNING);
         $result = exec($command);
         return empty($result);
     }
@@ -60,7 +60,7 @@ class WakfuController extends TController implements WakfuServiceIf{
             '-m start'
         );
         $command = join(' ', $command);
-        Yii::log($command, CLogger::LEVEL_INFO);
+        Yii::log($command, CLogger::LEVEL_WARNING);
         $result = exec($command);
         return empty($result);
     }
@@ -73,7 +73,7 @@ class WakfuController extends TController implements WakfuServiceIf{
             '-m quit'
         );
         $command = join(' ', $command);
-        Yii::log($command, CLogger::LEVEL_INFO);
+        Yii::log($command, CLogger::LEVEL_WARNING);
         $result = exec($command);
         return empty($result);
     }
@@ -86,7 +86,7 @@ class WakfuController extends TController implements WakfuServiceIf{
             '-v'
         );
         $command = join(' ', $command);
-        Yii::log($command, CLogger::LEVEL_INFO);
+        Yii::log($command, CLogger::LEVEL_WARNING);
         $result = exec($command);
         return $result;
     }
@@ -114,7 +114,7 @@ class WakfuController extends TController implements WakfuServiceIf{
             $command[] = '--user-rule '.$this->getUserRulePath($path, $rules);
         }
         $command = join(' ', $command);
-        Yii::log($command, CLogger::LEVEL_INFO);
+        Yii::log($command, CLogger::LEVEL_WARNING);
         exec($command);
         $str = file_get_contents($path);
         //压缩
