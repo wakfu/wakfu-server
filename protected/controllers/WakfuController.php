@@ -21,34 +21,13 @@ class WakfuController extends TController implements WakfuServiceIf{
         $this->pacPath = $app.'/data/pac/';
     }
 
+    /**
+     * 开启ss-local进程
+     * @param string $ip
+     * @param int $port
+     * @return bool
+     */
     public function create($ip, $port) {
-        $command = array(
-            'sudo sh',
-            $this->shell,
-            '-s '.$ip,
-            '-p '.$port,
-            '-c'
-        );
-        $command = join(' ', $command);
-        Yii::log($command, CLogger::LEVEL_WARNING);
-        $result = exec($command);
-        return empty($result);
-    }
-
-    public function remove($ip, $port) {
-        $command = array(
-            'sudo sh',
-            $this->shell,
-            '-p '.$port,
-            '-d'
-        );
-        $command = join(' ', $command);
-        Yii::log($command, CLogger::LEVEL_WARNING);
-        $result = exec($command);
-        return empty($result);
-    }
-
-    public function open($ip, $port){
         $server = Yii::app()->params['serverList'];
         $min = 0;
         $max = count($server) - 1;
@@ -65,7 +44,13 @@ class WakfuController extends TController implements WakfuServiceIf{
         return empty($result);
     }
 
-    public function close($ip, $port){
+    /**
+     * 退出ss-local
+     * @param string $ip
+     * @param int $port
+     * @return bool
+     */
+    public function remove($ip, $port) {
         $command = array(
             'sudo sh',
             $this->client,
@@ -76,8 +61,54 @@ class WakfuController extends TController implements WakfuServiceIf{
         Yii::log($command, CLogger::LEVEL_WARNING);
         $result = exec($command);
         return empty($result);
+
     }
 
+    /**
+     * 添加iptables防火墙
+     * @param string $ip
+     * @param int $port
+     * @return bool
+     */
+    public function open($ip, $port){
+        $command = array(
+            'sudo sh',
+            $this->shell,
+            '-s '.$ip,
+            '-p '.$port,
+            '-c'
+        );
+        $command = join(' ', $command);
+        Yii::log($command, CLogger::LEVEL_WARNING);
+        $result = exec($command);
+        return empty($result);
+    }
+
+    /**
+     * 删除iptables防火墙
+     * @param string $ip
+     * @param int $port
+     * @return bool
+     */
+    public function close($ip, $port){
+        $command = array(
+            'sudo sh',
+            $this->shell,
+            '-p '.$port,
+            '-d'
+        );
+        $command = join(' ', $command);
+        Yii::log($command, CLogger::LEVEL_WARNING);
+        $result = exec($command);
+        return empty($result);
+    }
+
+    /**
+     * 读取经过防火墙的流量
+     * @param string $ip
+     * @param int $port
+     * @return string
+     */
     public function view($ip, $port) {
         $command = array(
             'sudo sh',

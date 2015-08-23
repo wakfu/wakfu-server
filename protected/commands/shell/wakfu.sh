@@ -69,8 +69,8 @@ if [ "$create" -eq "1" ]; then
     fi
     exists=$(iptables -n -v -L -t filter |grep "$port");
     if [ -z "$exists" ]; then
-        $(iptables -I INPUT -d $server -p tcp --dport $port);
-        $(iptables -I OUTPUT -s $server -p tcp --sport $port);
+        $(iptables -I INPUT -d $server -p tcp --dport $port -j ACCEPT);
+        $(iptables -I OUTPUT -s $server -p tcp --sport $port -j ACCEPT);
     fi
     exit 0;
 fi
