@@ -23,11 +23,10 @@ class WakfuController extends TController implements WakfuServiceIf{
 
     /**
      * 开启ss-local进程
-     * @param string $ip
      * @param int $port
      * @return bool
      */
-    public function create($ip, $port) {
+    private function create($port) {
         $server = Yii::app()->params['serverList'];
         $min = 0;
         $max = count($server) - 1;
@@ -46,11 +45,10 @@ class WakfuController extends TController implements WakfuServiceIf{
 
     /**
      * 退出ss-local
-     * @param string $ip
      * @param int $port
      * @return bool
      */
-    public function remove($ip, $port) {
+    private function remove($port) {
         $command = array(
             'sudo sh',
             $this->client,
@@ -71,6 +69,8 @@ class WakfuController extends TController implements WakfuServiceIf{
      * @return bool
      */
     public function open($ip, $port){
+        if(!$this->create($port)) return false;
+
         $command = array(
             'sudo sh',
             $this->shell,
@@ -91,6 +91,8 @@ class WakfuController extends TController implements WakfuServiceIf{
      * @return bool
      */
     public function close($ip, $port){
+        if(!$this->remove($port)) return false;
+
         $command = array(
             'sudo sh',
             $this->shell,

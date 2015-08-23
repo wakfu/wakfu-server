@@ -72,7 +72,6 @@ if [ "$create" -eq "1" ]; then
         $(iptables -I INPUT -d $server -p tcp --dport $port -j ACCEPT);
         $(iptables -I OUTPUT -s $server -p tcp --sport $port -j ACCEPT);
     fi
-    $(/usr/local/bin/ss-client -s "$server" -p "$pid" -m start);
     exit 0;
 fi
 
@@ -86,7 +85,6 @@ if [ "$remove" -eq "1" ]; then
     if [ -n "$input" ]; then
         $(iptables -t filter -D OUTPUT $output);
     fi
-    $(/usr/local/bin/ss-client -p "$pid" -m quit);
     exit 0;
 fi
 
