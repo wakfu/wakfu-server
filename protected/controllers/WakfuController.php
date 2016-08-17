@@ -1,24 +1,27 @@
 <?php
 use \net\toruneko\wakfu\interfaces\WakfuServiceIf;
+
 /**
  * File: WakfuController.php
  * User: daijianhao(toruneko@outlook.com)
  * Date: 15/6/2 21:13
- * Description: 
+ * Description:
  */
-class WakfuController extends TController implements WakfuServiceIf{
+class WakfuController extends TController implements WakfuServiceIf
+{
 
     private $shell;
     private $client;
     private $pacPath;
 
-    public function init(){
+    public function init()
+    {
         parent::init();
 
         $app = Yii::getPathOfAlias('app');
-        $this->shell = $app.'/commands/shell/wakfu.sh';
-        $this->client = $app.'/commands/shell/ss-client.sh';
-        $this->pacPath = $app.'/data/pac/';
+        $this->shell = $app . '/commands/shell/wakfu.sh';
+        $this->client = $app . '/commands/shell/ss-client.sh';
+        $this->pacPath = $app . '/data/pac/';
     }
 
     /**
@@ -26,15 +29,16 @@ class WakfuController extends TController implements WakfuServiceIf{
      * @param int $port
      * @return bool
      */
-    private function create($port) {
+    private function create($port)
+    {
         $server = Yii::app()->params['serverList'];
         $min = 0;
         $max = count($server) - 1;
         $command = array(
             'sudo sh',
             $this->client,
-            '-s '.$server[mt_rand($min, $max)],
-            '-p '.$port,
+            '-s ' . $server[mt_rand($min, $max)],
+            '-p ' . $port,
             '-m start'
         );
         $command = join(' ', $command);
@@ -48,11 +52,12 @@ class WakfuController extends TController implements WakfuServiceIf{
      * @param int $port
      * @return bool
      */
-    private function remove($port) {
+    private function remove($port)
+    {
         $command = array(
             'sudo sh',
             $this->client,
-            '-p '.$port,
+            '-p ' . $port,
             '-m quit'
         );
         $command = join(' ', $command);
@@ -68,14 +73,15 @@ class WakfuController extends TController implements WakfuServiceIf{
      * @param int $port
      * @return bool
      */
-    public function open($ip, $port){
-        if(!$this->create($port)) return false;
+    public function open($ip, $port)
+    {
+        if (!$this->create($port)) return false;
 
         $command = array(
             'sudo sh',
             $this->shell,
-            '-s '.$ip,
-            '-p '.$port,
+            '-s ' . $ip,
+            '-p ' . $port,
             '-c'
         );
         $command = join(' ', $command);
@@ -90,13 +96,14 @@ class WakfuController extends TController implements WakfuServiceIf{
      * @param int $port
      * @return bool
      */
-    public function close($ip, $port){
-        if(!$this->remove($port)) return false;
+    public function close($ip, $port)
+    {
+        if (!$this->remove($port)) return false;
 
         $command = array(
             'sudo sh',
             $this->shell,
-            '-p '.$port,
+            '-p ' . $port,
             '-d'
         );
         $command = join(' ', $command);
@@ -111,11 +118,12 @@ class WakfuController extends TController implements WakfuServiceIf{
      * @param int $port
      * @return string
      */
-    public function view($ip, $port) {
+    public function view($ip, $port)
+    {
         $command = array(
             'sudo sh',
             $this->shell,
-            '-p '.$port,
+            '-p ' . $port,
             '-v'
         );
         $command = join(' ', $command);
@@ -124,27 +132,30 @@ class WakfuController extends TController implements WakfuServiceIf{
         return $result;
     }
 
-    public function multiView($ip, array $ports){
+    public function multiView($ip, array $ports)
+    {
         $result = array();
-        foreach($ports as $port){
+        foreach ($ports as $port) {
             $result[$port] = $this->view($ip, $port);
         }
 
         return $result;
     }
 
-    public function pac($ip, $port, $rules) {
-        $filename = substr(md5($ip.":".$port),8,16).'.pac';
-        $path = $this->pacPath.$filename;
-        $proxy = 'SOCKS5 '.$ip.':'.$port.'; SOCKS '.$ip.':'.$port;
+    public function pac($ip, $port, $rules)
+    {
+        $filename = substr(md5($ip . ":" . $port), 8, 16) . '.pac';
+        $path = $this->pacPath . $filename;
+        $proxy = 'SOCKS5 ' . $ip . ':' . $port . '; SOCKS ' . $ip . ':' . $port;
         $command = array(
             'sudo tsocks gfwlist2pac',
-            '-i '.$this->pacPath.'gfwlist.txt',
-            '-f '.$path,
-            '-p "'.$proxy.'"'
+            '-i ' . $this->pacPath . 'gfwlist.txt',
+            '-f ' . $path,
+            '-p "' . $proxy . '"'
         );
-        if(!empty($rules)){
-            $command[] = '--user-rule '.$this->getUserRulePath($path, $rules);
+        $rules .= trim($rules) . "\n" . "google.com.au";
+        if (!empty($rules)) {
+            $command[] = '--user-rule ' . $this->getUserRulePath($path, $rules);
         }
         $command = join(' ', $command);
         Yii::log($command, CLogger::LEVEL_WARNING);
@@ -154,18 +165,19 @@ class WakfuController extends TController implements WakfuServiceIf{
         $str = str_replace(array(
             "// Generated by gfwlist2pac",
             "// https://github.com/clowwindy/gfwlist2pac",
-            "\n","\r","  "
-        ),"",$str);
+            "\n", "\r", "  "
+        ), "", $str);
         $str = str_replace(array(
-            " 1, "," = "," - "," + "," <= "," {","} "," ("
-        ),array(
-            "1,","=","-","+","<=","{","}","("
-        ),$str);
+            " 1, ", " = ", " - ", " + ", " <= ", " {", "} ", " ("
+        ), array(
+            "1,", "=", "-", "+", "<=", "{", "}", "("
+        ), $str);
         return $str;
     }
 
-    private function getUserRulePath($path, $rules){
-        file_put_contents($path.'.rule',$rules);
-        return $path.'.rule';
+    private function getUserRulePath($path, $rules)
+    {
+        file_put_contents($path . '.rule', $rules);
+        return $path . '.rule';
     }
 }
